@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Case Study · Carlos Rojas · Data Analyst</title>
+  <meta name="description" content="Diagnosing the Professional Readiness Gap: A Curricular Audit of 74 STEM courses and 469 learning outcomes. By Carlos Rojas.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --cream:      #F5F0E8;
+      --cream-dark: #EDE8DC;
+      --ink:        #1A1714;
+      --ink-mid:    #3D3630;
+      --ink-light:  #6B6460;
+      --red:        #C0392B;
+      --red-light:  #E8503F;
+      --topbar:     #141210;
+      --card:       #FFFFFF;
+      --border:     #D8D2C6;
+      --serif: 'Playfair Display', Georgia, serif;
+      --sans:  'DM Sans', system-ui, sans-serif;
+      --radius: 6px;
+      --shadow: 0 2px 16px rgba(26,23,20,0.08);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      background: var(--cream);
+      color: var(--ink);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      background: var(--topbar);
+      padding: 0 2rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .topbar-brand {
+      font-family: var(--serif);
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      text-decoration: none;
+    }
+    .topbar-brand span { color: var(--red-light); }
+    .topbar-nav { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
+    .topbar-nav a {
+      color: rgba(255,255,255,0.58);
+      text-decoration: none;
+      font-size: 0.76rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .topbar-nav a:hover { color: #fff; }
+    .btn-nav {
+      background: var(--red) !important;
+      color: #fff !important;
+      padding: 0.35rem 0.9rem;
+      border-radius: var(--radius);
+    }
+    .btn-nav:hover { background: var(--red-light) !important; }
+
+    /* HERO */
+    .hero {
+      background: var(--topbar);
+      color: #fff;
+      padding: 5rem 2rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(192,57,43,0.15) 0%, transparent 68%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--red);
+    }
+    .hero-inner { max-width: 860px; margin: 0 auto; position: relative; }
+    .hero-eyebrow {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--red-light);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 24px; height: 2px;
+      background: var(--red-light);
+    }
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(1.85rem, 4.5vw, 3.1rem);
+      font-weight: 900;
+      line-height: 1.13;
+      margin-bottom: 1.4rem;
+    }
+    .hero h1 em { font-style: italic; color: var(--red-light); }
+    .hero-desc {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.68);
+      max-width: 640px;
+      line-height: 1.8;
+      margin-bottom: 2rem;
+    }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .pill {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.28rem 0.72rem;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.62);
+      border: 1px solid rgba(255,255,255,0.11);
+    }
+    .pill.red {
+      background: rgba(192,57,43,0.22);
+      color: #f3a49c;
+      border-color: rgba(192,57,43,0.38);
+    }
+
+    /* STATS */
+    .stats-band { background: var(--ink); padding: 2.5rem 2rem; }
+    .stats-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .stat-item {
+      padding: 1.6rem 1.2rem;
+      background: var(--ink);
+      text-align: center;
+      position: relative;
+    }
+    .stat-item::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 20%; right: 20%;
+      height: 2px;
+      background: var(--red);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .stat-item:hover::after { opacity: 1; }
+    .stat-val {
+      font-family: var(--serif);
+      font-size: 2.3rem;
+      font-weight: 900;
+      color: #fff;
+      display: block;
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .stat-val sup { font-size: 1.1rem; color: var(--red-light); }
+    .stat-val span { color: var(--red-light); }
+    .stat-lbl {
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      display: block;
+    }
+    .stat-note {
+      font-size: 0.62rem;
+      color: rgba(255,255,255,0.22);
+      margin-top: 0.2rem;
+    }
+
+    /* CALLOUT */
+    .callout-wrap { background: var(--ink); border-top: 1px solid rgba(255,255,255,0.04); padding: 3rem 2rem; }
+    .callout-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 3px 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+    .callout-bar { background: var(--red); min-height: 80px; border-radius: 2px; }
+    .callout-eye {
+      font-size: 0.67rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--red-light);
+      margin-bottom: 0.8rem;
+    }
+    .callout-q {
+      font-family: var(--serif);
+      font-size: clamp(1.1rem, 2.3vw, 1.52rem);
+      font-weight: 400;
+      font-style: italic;
+      line-height: 1.5;
+      color: #fff;
+    }
+
+    /* CONTENT */
+    .wrap { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+    section { padding: 3.5rem 0; border-bottom: 1px solid var(--border); }
+    section:last-child { border-bottom: none; }
+    .slabel {
+      font-size: 0.67rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 0.45rem;
+    }
+    .stitle {
+      font-family: var(--serif);
+      font-size: clamp(1.3rem, 2.8vw, 1.82rem);
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .sbody {
+      font-size: 0.96rem;
+      color: var(--ink-mid);
+      line-height: 1.82;
+      max-width: 640px;
+    }
+    .sbody + .sbody { margin-top: 0.9rem; }
+    .sbody strong { color: var(--ink); }
+
+    /* METHOD CARDS */
+    .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.6rem; }
+    .mcrd {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.15rem 1.3rem;
+      box-shadow: var(--shadow);
+    }
+    .mcrd h4 {
+      font-size: 0.67rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 0.4rem;
+    }
+    .mcrd p { font-size: 0.86rem; color: var(--ink-mid); line-height: 1.65; }
+
+    /* DIMENSION TABLE */
+    .dtable-wrap { margin-top: 1.8rem; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    thead th {
+      font-size: 0.63rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+      padding: 0.6rem 0.8rem;
+      border-bottom: 2px solid var(--border);
+      text-align: left;
+      background: var(--cream-dark);
+    }
+    tbody td {
+      padding: 0.7rem 0.8rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--ink-mid);
+      vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: rgba(192,57,43,0.025); }
+    .did {
+      font-family: var(--serif);
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--red);
+    }
+    .bar-wrap { display: flex; align-items: center; gap: 0.6rem; }
+    .bar {
+      height: 7px;
+      background: var(--red);
+      border-radius: 3px;
+      min-width: 2px;
+    }
+    .bval { font-weight: 600; font-size: 0.82rem; color: var(--ink); white-space: nowrap; }
+    .zero { color: var(--ink-light); font-style: italic; }
+
+    /* CHARTS */
+    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.4rem; margin-top: 1.8rem; }
+    .ccrd {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem;
+      box-shadow: var(--shadow);
+    }
+    .ctitle { font-family: var(--serif); font-size: 0.95rem; font-weight: 700; color: var(--ink); margin-bottom: 0.2rem; }
+    .csub { font-size: 0.72rem; color: var(--ink-light); margin-bottom: 1.1rem; line-height: 1.5; }
+    .cbox { position: relative; height: 240px; }
+    .cbox.tall { height: 280px; }
+
+    /* TYPOLOGY */
+    .typo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.8rem; }
+    .tcrd {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem 1.2rem 1.3rem;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .tcrd::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .tcrd.a::before { background: #2E7D32; }
+    .tcrd.b::before { background: #1565C0; }
+    .tcrd.c::before { background: #E65100; }
+    .tcrd.d::before { background: var(--border); }
+    .ttype { font-family: var(--serif); font-size: 1.8rem; font-weight: 900; line-height: 1; margin-bottom: 0.25rem; }
+    .tcrd.a .ttype { color: #2E7D32; }
+    .tcrd.b .ttype { color: #1565C0; }
+    .tcrd.c .ttype { color: #E65100; }
+    .tcrd.d .ttype { color: var(--ink-light); }
+    .tcount { font-size: 0.72rem; font-weight: 600; color: var(--ink-light); margin-bottom: 0.5rem; }
+    .tlabel { font-size: 0.85rem; font-weight: 600; color: var(--ink); margin-bottom: 0.3rem; }
+    .taction { font-size: 0.76rem; color: var(--ink-mid); line-height: 1.5; font-style: italic; }
+
+    /* RECS */
+    .recs { display: grid; gap: 1rem; margin-top: 1.8rem; }
+    .rec {
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: 1rem;
+      align-items: start;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--red);
+      border-radius: var(--radius);
+      padding: 1.15rem 1.3rem;
+      box-shadow: var(--shadow);
+    }
+    .rnum { font-family: var(--serif); font-size: 1.5rem; font-weight: 900; color: var(--red); line-height: 1; padding-top: 2px; }
+    .rtitle { font-family: var(--serif); font-size: 1rem; font-weight: 700; color: var(--ink); margin-bottom: 0.32rem; }
+    .rbody { font-size: 0.87rem; color: var(--ink-mid); line-height: 1.7; }
+
+    /* AUTHOR */
+    .author-sec { background: var(--topbar); padding: 3.5rem 2rem; }
+    .author-in {
+      max-width: 860px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2.5rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .author-info h2 { font-family: var(--serif); font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.22rem; }
+    .author-info p { font-size: 0.84rem; color: rgba(255,255,255,0.46); margin-bottom: 0.85rem; }
+    .author-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .abadge {
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.27rem 0.62rem;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.52);
+    }
+    .abadge.cert { background: rgba(192,57,43,0.2); border-color: rgba(192,57,43,0.35); color: #f3a49c; }
+    .author-links { display: flex; flex-direction: column; gap: 0.7rem; }
+    .alink {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: rgba(255,255,255,0.52);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .alink:hover { color: #fff; }
+    .alink svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .foot { background: #0C0A09; padding: 1rem 2rem; text-align: center; }
+    .foot p { font-size: 0.68rem; color: rgba(255,255,255,0.2); letter-spacing: 0.04em; }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero-inner > * { animation: fadeUp 0.55s ease forwards; opacity: 0; }
+    .hero-eyebrow    { animation-delay: 0.06s; }
+    .hero h1         { animation-delay: 0.15s; }
+    .hero-desc       { animation-delay: 0.24s; }
+    .hero-meta       { animation-delay: 0.33s; }
+
+    /* RESPONSIVE */
+    @media (max-width: 680px) {
+      .topbar-nav { display: none; }
+      .method-grid, .typo-grid { grid-template-columns: 1fr 1fr; }
+      .stats-inner { grid-template-columns: 1fr 1fr; }
+      .callout-inner { grid-template-columns: 1fr; }
+      .callout-bar { display: none; }
+      .hero, .wrap { padding-left: 1.2rem; padding-right: 1.2rem; }
+    }
+    @media (max-width: 440px) {
+      .method-grid, .typo-grid, .stats-inner { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <a href="#" class="topbar-brand">Carlos <span>Rojas</span></a>
+  <ul class="topbar-nav">
+    <li><a href="#findings">Findings</a></li>
+    <li><a href="#charts">Charts</a></li>
+    <li><a href="#typology">Typology</a></li>
+    <li><a href="#recs">Recs</a></li>
+    <li><a href="https://github.com/carlosrojasbruna" class="btn-nav" target="_blank" rel="noopener">GitHub ↗</a></li>
+  </ul>
+</nav>
+
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-inner">
+    <p class="hero-eyebrow">Case Study · Curricular Data Analysis · STEM Education</p>
+    <h1>Diagnosing the <em>Professional<br>Readiness Gap</em> in STEM Curricula</h1>
+    <p class="hero-desc">
+      Employer surveys show that 86.9% of hiring managers rank professionalism and ethics
+      as fundamental — yet only 44.2% consider new STEM graduates adequately prepared.
+      This study asks: <em>where does that gap enter the curriculum?</em> Using a purpose-built
+      audit instrument, all 74 mathematics courses and 469 intended learning outcomes of a
+      Latin American research university were systematically coded across six Human-Centred
+      Professionalism dimensions, then cross-analysed with Anderson &amp; Krathwohl's revised
+      Bloom's taxonomy. The results locate the gap with precision: it lives in the engineering
+      service courses, and its roots are cognitive.
+    </p>
+    <div class="hero-meta">
+      <span class="pill">Curricular Audit Instrument</span>
+      <span class="pill">Content Analysis</span>
+      <span class="pill">Bloom's Taxonomy</span>
+      <span class="pill">ABET Alignment</span>
+      <span class="pill red">Google Data Analytics Cert.</span>
+    </div>
+  </div>
+</header>
+
+
+<!-- STATS -->
+<div class="stats-band">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <span class="stat-val">74</span>
+      <span class="stat-lbl">Courses Audited</span>
+      <p class="stat-note">Complete mathematics catalogue</p>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val">469</span>
+      <span class="stat-lbl">ILOs Coded</span>
+      <p class="stat-note">Across 5 curricular strata</p>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val">2.1<span>%</span></span>
+      <span class="stat-lbl">ICHP — Engineering Stratum</span>
+      <p class="stat-note">HCP Coverage Index, E2 (16 courses)</p>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val">42.7<span>pp</span></span>
+      <span class="stat-lbl">Employer Readiness Gap</span>
+      <p class="stat-note">Expected vs. demonstrated (NACE 2025)</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- CALLOUT -->
+<div class="callout-wrap" id="findings">
+  <div class="callout-inner">
+    <div class="callout-bar"></div>
+    <div>
+      <p class="callout-eye">Headline Finding</p>
+      <p class="callout-q">
+        "Engineering service courses — serving the largest and most professionally relevant
+        student population — average an HCP Coverage Index of 2.1%, with zero presence of
+        inclusion, ethics, or emotional wellbeing across all 16 courses and 142 learning outcomes."
+      </p>
+    </div>
+  </div>
+</div>
+
+
+<!-- MAIN -->
+<div class="wrap">
+
+  <!-- INSTRUMENT -->
+  <section>
+    <p class="slabel">Context &amp; Instrument</p>
+    <h2 class="stitle">Building a Replicable Curricular Audit Tool</h2>
+    <p class="sbody">
+      The analysis starts from a structural hypothesis: the professional readiness gap is not
+      a failure of individual instructors — it is built into the formal curriculum before any
+      student enters a classroom. The first task was to construct a systematic instrument
+      capable of detecting this deficit at the document level.
+    </p>
+    <p class="sbody">
+      Six Human-Centred Professionalism (HCP) dimensions were operationalised using indicator
+      dictionaries grounded in two validated frameworks — Tucker et al.'s Human-Centered
+      Engineering Design (HCED, 2023) and the Aspire Alliance's Inclusive Professional Framework
+      (IPF, 2021) — and aligned with ABET accreditation criteria. Each of the 469 ILOs across
+      74 courses was coded 0 (Absent), 1 (Implicit), or 2 (Explicit) per dimension.
+      A composite HCP Coverage Index (ICHP = Σcodes / 12 × 100%) was computed per course.
+      A convergent analysis then classified each ILO using Anderson &amp; Krathwohl's revised
+      taxonomy across six cognitive levels and four knowledge types.
+    </p>
+    <div class="method-grid">
+      <div class="mcrd">
+        <h4>Corpus</h4>
+        <p>Complete mathematics catalogue (MAT sigla) of a Latin American research university — 74 courses, 469 ILOs, five curricular strata (E1–E5) serving engineering, science, and pedagogy programmes.</p>
+      </div>
+      <div class="mcrd">
+        <h4>HCP Instrument</h4>
+        <p>6 dimensions, 3-point scale (0/1/2). ICHP = Σ(D1–D6) / 12 × 100%. Supplementary HCP Diversity Index (IDHCP) measures breadth across dimensions. Indicator dictionary includes 110 Spanish-language verb mappings.</p>
+      </div>
+      <div class="mcrd">
+        <h4>Convergent Taxonomy</h4>
+        <p>Every ILO classified across Anderson &amp; Krathwohl's 6 × 4 matrix. Metrics per course: Cognitive Complexity Index (CCI), Knowledge Dimension Index (KDI), Taxonomic Diversity Index (TDI), HCP Preparedness Score (HCPPS).</p>
+      </div>
+      <div class="mcrd">
+        <h4>Scope &amp; Limits</h4>
+        <p>Operates at the <em>intended</em> curriculum — formal ILO documentation. The enacted curriculum requires Phase 2 validation against classroom instruments such as the Faculty Inclusive Teaching Survey (FITS; Dukes et al., 2024).</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- DIMENSION TABLE -->
+  <section id="charts">
+    <p class="slabel">Finding 1 · HCP Dimensions</p>
+    <h2 class="stitle">Surface-Layer Professionalism Across 74 Courses</h2>
+    <p class="sbody">
+      The catalogue exhibits <strong>surface-layer professionalism</strong>: Communication (D5)
+      and Empathy/Relational Practice (D1) appear at detectable rates because they map onto
+      familiar disciplinary habits — explaining proofs, collaborative problem-solving. The deeper
+      competencies that employers and ABET require are near-absent. <strong>Emotional Wellbeing
+      (D6) registers zero presence</strong> across all 74 courses. Inclusion (D2, 1.4%) and
+      Ethics (D3, 4.1%) are effectively absent. This is the curricular signature that predicts
+      the employer readiness deficit.
+    </p>
+    <div class="dtable-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Dim.</th>
+            <th>Name</th>
+            <th>% Present (implicit + explicit)</th>
+            <th>Courses absent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="did">D1</span></td>
+            <td>Empathy &amp; Relational Practice</td>
+            <td><div class="bar-wrap"><div class="bar" style="width:58px"></div><span class="bval">32.4%</span></div></td>
+            <td>50 / 74</td>
+          </tr>
+          <tr>
+            <td><span class="did">D2</span></td>
+            <td>Inclusion &amp; Diversity Awareness</td>
+            <td><div class="bar-wrap"><div class="bar" style="width:3px"></div><span class="bval zero">1.4%</span></div></td>
+            <td>73 / 74</td>
+          </tr>
+          <tr>
+            <td><span class="did">D3</span></td>
+            <td>Ethics &amp; Social Responsibility</td>
+            <td><div class="bar-wrap"><div class="bar" style="width:7px"></div><span class="bval zero">4.1%</span></div></td>
+            <td>71 / 74</td>
+          </tr>
+          <tr>
+            <td><span class="did">D4</span></td>
+            <td>Reflective Professional Identity</td>
+            <td><div class="bar-wrap"><div class="bar" style="width:22px"></div><span class="bval">12.2%</span></div></td>
+            <td>65 / 74</td>
+          </tr>
+          <tr>
+            <td><span class="did">D5</span></td>
+            <td>Person-Centred Communication</td>
+            <td><div class="bar-wrap"><div class="bar" style="width:80px"></div><span class="bval">44.6%</span></div></td>
+            <td>41 / 74</td>
+          </tr>
+          <tr>
+            <td><span class="did">D6</span></td>
+            <td>Emotional Wellbeing &amp; Self-Regulation</td>
+            <td><div class="bar-wrap"><div class="bar" style="width:2px;background:var(--border)"></div><span class="bval zero">0.0% — not a single ILO</span></div></td>
+            <td>74 / 74</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+
+  <!-- CHARTS -->
+  <section>
+    <p class="slabel">Finding 2 · By Stratum &amp; Cognitive Level</p>
+    <h2 class="stitle">The Gap Is Concentrated and Architectural</h2>
+    <p class="sbody">
+      Disaggregating by stratum reveals that the gap is not distributed evenly — it concentrates
+      with near-total intensity in <strong>E2 (engineering service courses)</strong>, the stratum
+      with the highest professional significance and the lowest ICHP (2.1%). Students in these
+      programmes complete 4–5 mathematics courses without encountering a single ILO related to
+      ethics, inclusion, reflective identity, or emotional wellbeing.
+    </p>
+    <p class="sbody">
+      The convergent taxonomic analysis reveals <em>why</em>: the curriculum's cognitive centre of
+      gravity sits in Apply × Procedural (97 ILOs, 37.1%). The cells where professional reasoning
+      operates — Evaluate × Metacognitive and Create × Metacognitive — contain <strong>zero
+      ILOs</strong> across the entire catalogue. The word "validate" does not appear once
+      in 469 learning outcomes.
+    </p>
+    <div class="charts-grid">
+
+      <div class="ccrd">
+        <p class="ctitle">Mean ICHP by Curricular Stratum</p>
+        <p class="csub">HCP Coverage Index (0–100%). E2 serves engineering — highest enrolment, most professionally relevant, lowest coverage.</p>
+        <div class="cbox"><canvas id="c1"></canvas></div>
+      </div>
+
+      <div class="ccrd">
+        <p class="ctitle">ILO Distribution by Cognitive Level</p>
+        <p class="csub">469 ILOs via Anderson &amp; Krathwohl's taxonomy. "Evaluate" — where professional judgement lives — accounts for just 2.6%.</p>
+        <div class="cbox"><canvas id="c2"></canvas></div>
+      </div>
+
+      <div class="ccrd" style="grid-column: 1 / -1;">
+        <p class="ctitle">Declared Graduate Competencies vs. Curricular Delivery</p>
+        <p class="csub">The institution's official graduate profiles promise these competencies to every student. Bars show measured HCP presence in E2 (engineering service) and E3 (mathematics bachelor's).</p>
+        <div class="cbox tall"><canvas id="c3"></canvas></div>
+      </div>
+
+      <div class="ccrd" style="grid-column: 1 / -1;">
+        <p class="ctitle">Key Anderson/Krathwohl Cells: ILO Count</p>
+        <p class="csub">Four cells selected for professional competency significance. The curriculum's concentration point vs. the cells where professional reasoning would develop.</p>
+        <div class="cbox"><canvas id="c4"></canvas></div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- TYPOLOGY -->
+  <section id="typology">
+    <p class="slabel">Intervention Roadmap</p>
+    <h2 class="stitle">A Four-Type Course Typology: Diagnosis into Action</h2>
+    <p class="sbody">
+      All 74 courses were classified by ICHP score and HCP Preparedness Score (HCPPS) into four
+      intervention types. The <strong>24 Type A+B courses (32.4%)</strong> represent the immediate
+      opportunity: they already have the cognitive architecture to support HCP integration through
+      targeted ILO revision rather than wholesale redesign. The seven Type A courses — operating
+      under the same institutional constraints as zero-ICHP courses — refute any argument
+      that integration is structurally impossible. The barrier is curricular design choice,
+      not institutional impossibility.
+    </p>
+    <div class="typo-grid">
+      <div class="tcrd a">
+        <div class="ttype">A</div>
+        <div class="tcount">7 courses · 9.5%</div>
+        <div class="tlabel">Already Integrates HCP</div>
+        <div class="taction">Document, strengthen, replicate as existence proof for the department</div>
+      </div>
+      <div class="tcrd b">
+        <div class="ttype">B</div>
+        <div class="tcount">17 courses · 23.0%</div>
+        <div class="tlabel">High Integration Potential</div>
+        <div class="taction">Targeted ILO revision — low effort, high yield for ABET compliance</div>
+      </div>
+      <div class="tcrd c">
+        <div class="ttype">C</div>
+        <div class="tcount">12 courses · 16.2%</div>
+        <div class="tlabel">Requires Redesign</div>
+        <div class="taction">Structural reform of ILOs, teaching strategy, and assessment methods</div>
+      </div>
+      <div class="tcrd d">
+        <div class="ttype">D</div>
+        <div class="tcount">38 courses · 51.4%</div>
+        <div class="tlabel">HCP Not Pertinent</div>
+        <div class="taction">Pure abstract mathematics — no intervention required or appropriate</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- RECOMMENDATIONS -->
+  <section id="recs">
+    <p class="slabel">Recommendations</p>
+    <h2 class="stitle">Three Evidence-Based Actions for Programme Administrators</h2>
+    <div class="recs">
+
+      <div class="rec">
+        <span class="rnum">01</span>
+        <div>
+          <p class="rtitle">Prioritise the 17 Type B Courses for Targeted ILO Revision</p>
+          <p class="rbody">
+            These courses already have the cognitive architecture (higher CCI, some metacognitive
+            content) to support HCP integration with ILO-level edits — no structural redesign
+            required. Reformulating a single ILO per course (for example, adding stakeholder
+            framing to an optimisation problem, or requiring students to evaluate the ethical
+            assumptions embedded in a statistical procedure) can shift a course from ICHP = 0%
+            to ICHP ≥ 17%, while simultaneously advancing ABET compliance at zero additional
+            credit-hour cost.
+          </p>
+        </div>
+      </div>
+
+      <div class="rec">
+        <span class="rnum">02</span>
+        <div>
+          <p class="rtitle">Move Ethics and Inclusion from Appendage to Integration in E2</p>
+          <p class="rbody">
+            The engineering service stratum registers 0.0% presence for both Ethics (D3) and
+            Inclusion (D2) across all 16 courses and 142 ILOs. The data support a curricular
+            integration approach — embedding D3 and D2 indicators directly into existing technical
+            ILOs — rather than adding standalone ethics modules. When students are asked to
+            evaluate the human implications of a mathematical model or analyse the demographic
+            assumptions in a statistical procedure, ethics becomes part of the discipline,
+            not an appendage to it.
+          </p>
+        </div>
+      </div>
+
+      <div class="rec">
+        <span class="rnum">03</span>
+        <div>
+          <p class="rtitle">Replicate the Instrument Across Engineering and Science Departments</p>
+          <p class="rbody">
+            The instrument is fully transferable — it requires only adaptation of polysemy rules
+            to each discipline's vocabulary. Applying it to the engineering and natural sciences
+            catalogues that E2 serves would allow administrators to construct a system-level map
+            of the professional readiness gap: identifying which departments contribute to ABET's
+            human-centred criteria and which are structurally absent from that contribution,
+            enabling evidence-based accreditation strategy at the institutional level.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div><!-- /wrap -->
+
+
+<!-- AUTHOR -->
+<div class="author-sec">
+  <div class="author-in">
+    <div class="author-info">
+      <h2>Carlos Rojas</h2>
+      <p>Researcher · Faculty of Mathematics · Pontificia Universidad Católica de Chile</p>
+      <div class="author-badges">
+        <span class="abadge cert">Google Data Analytics Certificate</span>
+        <span class="abadge">Curricular Analysis</span>
+        <span class="abadge">Content Coding</span>
+        <span class="abadge">Python</span>
+        <span class="abadge">Data Visualisation</span>
+      </div>
+    </div>
+    <div class="author-links">
+      <a href="https://github.com/carlosrojasbruna" class="alink" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
+        github.com/carlosrojasbruna
+      </a>
+      <a href="https://linkedin.com/in/carlosrojasbruna" class="alink" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        linkedin.com/in/carlosrojasbruna
+      </a>
+      <a href="https://kaggle.com/carlosrojasbruna" class="alink" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.825 23.859c-.022.092-.117.141-.281.141h-3.139c-.187 0-.351-.082-.492-.248l-5.178-6.589-1.448 1.374v5.111c0 .235-.117.352-.351.352H5.505c-.236 0-.354-.117-.354-.352V.353c0-.233.118-.353.354-.353h2.431c.234 0 .351.12.351.353v14.343l6.203-6.272c.165-.165.33-.246.495-.246h3.239c.144 0 .236.06.285.18.046.149.034.255-.036.315l-6.555 6.344 6.836 8.507c.095.104.117.208.07.336z"/></svg>
+        kaggle.com/carlosrojasbruna
+      </a>
+    </div>
+  </div>
+</div>
+<div class="foot"><p>Carlos Rojas · Data Analyst Portfolio · Chart.js · GitHub Pages · Pontificia Universidad Católica de Chile</p></div>
+
+
+<!-- CHARTS -->
+<script>
+  Chart.defaults.font.family = "'DM Sans', sans-serif";
+  Chart.defaults.color = '#6B6460';
+
+  const RED  = '#C0392B';
+  const RED2 = '#E8503F';
+  const MID  = '#5C5450';
+  const LITE = '#A09890';
+  const PALE = '#D0C8C0';
+
+  // C1: ICHP by stratum (horizontal bar)
+  new Chart(document.getElementById('c1'), {
+    type: 'bar',
+    data: {
+      labels: ['E1 Foundation', 'E2 Engineering\n(Service)', 'E3 Maths\nBachelor\'s', 'E4 Advanced\nElectives', 'E5 Pedagogy'],
+      datasets: [{
+        data: [31.9, 2.1, 18.7, 4.4, 0.0],
+        backgroundColor: [LITE, RED, MID, LITE, PALE],
+        borderRadius: 4,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          max: 40,
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          ticks: { callback: v => v + '%', font: { size: 11 } },
+          title: { display: true, text: 'Mean ICHP (%)', font: { size: 11 } }
+        },
+        y: { grid: { display: false }, ticks: { font: { size: 10.5 } } }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ICHP = ${ctx.raw}%` } }
+      }
+    }
+  });
+
+  // C2: Cognitive level doughnut
+  new Chart(document.getElementById('c2'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Remember', 'Understand', 'Apply', 'Analyse', 'Evaluate', 'Create'],
+      datasets: [{
+        data: [5.5, 23.0, 37.1, 21.1, 2.6, 10.7],
+        backgroundColor: [PALE, LITE, RED, MID, RED2, '#3D3630'],
+        borderColor: '#fff',
+        borderWidth: 3,
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      cutout: '58%',
+      plugins: {
+        legend: { position: 'right', labels: { boxWidth: 10, padding: 10, font: { size: 11 } } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}% of 469 ILOs` } }
+      }
+    }
+  });
+
+  // C3: Graduate profile vs delivery (grouped bar)
+  new Chart(document.getElementById('c3'), {
+    type: 'bar',
+    data: {
+      labels: [
+        'Social Responsibility (D3)',
+        'Ethical Practice (D3)',
+        'Teamwork (D1)',
+        'Communication (D5)',
+        'Inclusion / Diversity (D2)'
+      ],
+      datasets: [
+        {
+          label: 'Declared in Graduate Profile',
+          data: [100, 100, 100, 100, 100],
+          backgroundColor: 'rgba(160,152,144,0.28)',
+          borderColor: LITE,
+          borderWidth: 1.5,
+          borderRadius: 3,
+        },
+        {
+          label: 'Delivered — E2 Engineering',
+          data: [0, 0, 6.2, 12.5, 0],
+          backgroundColor: 'rgba(192,57,43,0.78)',
+          borderColor: RED,
+          borderWidth: 0,
+          borderRadius: 3,
+        },
+        {
+          label: 'Delivered — E3 Maths Bachelor\'s',
+          data: [8.0, 8.0, 56.0, 72.0, 0],
+          backgroundColor: 'rgba(92,84,80,0.62)',
+          borderColor: MID,
+          borderWidth: 0,
+          borderRadius: 3,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10.5 } } },
+        y: {
+          max: 110,
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          ticks: { callback: v => v + '%', font: { size: 11 } },
+          title: { display: true, text: 'HCP Presence (%)', font: { size: 11 } }
+        }
+      },
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 14, font: { size: 11 } } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}%` } }
+      }
+    }
+  });
+
+  // C4: Key A&K cells
+  new Chart(document.getElementById('c4'), {
+    type: 'bar',
+    data: {
+      labels: [
+        'Apply × Procedural\n(Technical execution)',
+        'Evaluate × Conceptual\n(Judging approaches)',
+        'Evaluate × Metacognitive\n(Ethical judgement)',
+        'Create × Metacognitive\n(Professional self-design)'
+      ],
+      datasets: [{
+        data: [97, 12, 0, 0],
+        backgroundColor: [RED, MID, 'rgba(208,200,192,0.45)', 'rgba(208,200,192,0.45)'],
+        borderColor: [RED, MID, '#D8D2C6', '#D8D2C6'],
+        borderWidth: [0, 0, 1.5, 1.5],
+        borderRadius: 4,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10.5 } } },
+        y: {
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          title: { display: true, text: 'Number of ILOs', font: { size: 11 } }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.raw} ILOs` } }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
